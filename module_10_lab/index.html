@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Whack-a-Mole Lite</title>
+  <style>
+    .gridStyle {
+      display: flex;
+      flex-wrap: wrap;
+      width: 320px;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .square {
+      width: 100px;
+      height: 100px;
+      background-color: rgba(240, 153, 153, 0.663);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .mole {
+      background-color: brown !important;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Score: <span id="score">0</span></h2>
+  <h3>Time Remaining: <span id="time">30</span> seconds</h3>
+  <div class="gridStyle" id="grid"></div>
+
+  <button onclick="startGame()">Start Game</button>
+  <p id="message"></p>
+
+  <script>
+    // GLOBAL VARIABLES
+    var score = 0;
+    var moleIndex = -1;
+    var moleTimer;
+    var squaresOfDivsAsArray = [];
+    var secondsPassed = 0;
+    var totalTime = 30;
+
+    // STEP 1: Draw the game grid
+    function drawGameGridWithFlexbox() {
+      var grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      squaresOfDivsAsArray = [];
+
+      for (var i = 1; i <= 9; i++) {
+        var square = document.createElement("div");   // make a new div
+        square.id = "square-" + i;                     // square-1 ... square-9
+        square.classList.add("square");                // give it the square style
+        square.addEventListener("click", handleClickOnSquare); // listen for clicks
+        grid.appendChild(square);                      // put it on the page
+        squaresOfDivsAsArray.push(square);             // remember it in the array
+      }
+    }
+
+    // STEP 2: Handle clicks on squares
+    function handleClickOnSquare(event) {
+      var clickedSquare = event.target;
+
+      // Only score if this square is currently showing the mole
+      if (clickedSquare.textContent === "🐹") {
+        score++;
+        document.getElementById("score").textContent = score;
+        removeMole();
+      }
+    }
+
+    // STEP 3: Show the mole in a random square
+    function showMole() {
+      removeMole();
+
+      var randomIndex = Math.floor(Math.random() * 9); // 0 through 8
+      moleIndex = randomIndex;
+
+      var square = squaresOfDivsAsArray[moleIndex];
+      square.classList.add("mole");
+      square.textContent = "🐹";
+    }
+
+    // STEP 4: Remove the mole from the current square
+    function removeMole() {
+      if (moleIndex !== -1) {
+        var square = squaresOfDivsAsArray[moleIndex];
+        square.classList.remove("mole");
+        square.textContent = "";
+      }
+      moleIndex = -1;
+    }
+
+    // STEP 5: Start the game (COMPLETED FOR YOU)
+    function startGame() {
+      clearInterval(moleTimer); // 🔧 Prevent multiple intervals
+      score = 0;
+      secondsPassed = 0;
+      moleIndex = -1;
+
+      document.getElementById("score").textContent = score;
+      document.getElementById("time").textContent = totalTime;
+      document.getElementById("message").textContent = "";
+
+      drawGameGridWithFlexbox();
+
+      moleTimer = setInterval(runGameLoop, 1000);
+    }
+
+    // STEP 6: Main game loop runs every second (COMPLETED FOR YOU)
+    function runGameLoop() {
+      if (secondsPassed >= totalTime) {
+        // Stop the game after time is up
+        clearInterval(moleTimer);
+        removeMole();
+        document.getElementById("message").textContent =
+          "⏱️ Game Over! Final Score: " + score;
+        return;
+      }
+
+      // Show a new mole and update remaining time
+      showMole();
+      secondsPassed++;
+      document.getElementById("time").textContent = totalTime - secondsPassed;
+    }
+  </script>
+
+</body>
+</html>
